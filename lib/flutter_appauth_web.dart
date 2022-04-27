@@ -2,6 +2,7 @@ library flutter_appauth_web;
 
 import 'dart:async';
 import 'dart:convert';
+
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:html' as html;
@@ -17,6 +18,7 @@ class AppAuthWebPlugin extends FlutterAppAuthPlatform {
   static const String _charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   static const String _DISCOVERY_ERROR_MESSAGE_FORMAT = "Error retrieving discovery document: [error: discovery_failed, description: %2]";
   static const String _TOKEN_ERROR_MESSAGE_FORMAT = "Failed to get token: [error: token_failed, description: %2]";
+  static const String _END_SESSION_ERROR_MESSAGE_FORMAT = "Failed to end session: [error: end_session_failed, description: %2]";
   static const String _AUTHORIZE_ERROR_MESSAGE_FORMAT = "Failed to authorize: [error: %1, description: %2]";
 
   static const String _AUTHORIZE_AND_EXCHANGE_CODE_ERROR_CODE = "authorize_and_exchange_code_failed";
@@ -134,16 +136,22 @@ class AppAuthWebPlugin extends FlutterAppAuthPlatform {
     if (request.postLogoutRedirectUrl != null && request.state != null) {
       uri += "&state=${request.state}";
     }
-    final response = await http.get(Uri.parse(uri));
 
-    final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-
-    if (response.statusCode != 200) {
-      print(jsonResponse["error"].toString());
-      throw ArgumentError(_TOKEN_ERROR_MESSAGE_FORMAT.replaceAll("%2", jsonResponse["error"]?.toString() ?? response.reasonPhrase ?? "Unknown Error"));
+    http.Client client = http.Client();
+    http.Request requestHttp = http.Request("Get", Uri.parse(uri))..followRedirects = false;
+    final http.StreamedResponse response = await client.send(requestHttp);
+    Uri? redirectUri;
+    if (response.isRedirect) {
+      String url = response.headers['location']!;
+      redirectUri = Uri.parse(url);
+      html.window.location.assign(url);
     }
 
-    return EndSessionResponse(jsonResponse['state'] == null ? null : jsonResponse['state'].toString());
+    if (response.statusCode != 200) {
+      throw ArgumentError(_END_SESSION_ERROR_MESSAGE_FORMAT.replaceAll("%2", response.reasonPhrase ?? "Unknown Error"));
+    }
+
+    return EndSessionResponse(redirectUri?.queryParameters['state'] == null ? null : redirectUri!.queryParameters['state'].toString());
   }
 
   Future<TokenResponse> requestToken(TokenRequest request) async {
