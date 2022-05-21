@@ -191,7 +191,11 @@ class AppAuthWebPlugin extends FlutterAppAuthPlatform {
     if (authCode == null || authCode.isEmpty)
       throw ArgumentError(_AUTHORIZE_ERROR_MESSAGE_FORMAT.replaceAll("%1", _AUTHORIZE_ERROR_CODE).replaceAll("%2", 'Login request returned no code'));
 
-    return AuthorizationResponse(authCode, codeVerifier, resultUri.queryParameters);
+    return AuthorizationResponse(
+      authorizationCode: authCode,
+      codeVerifier: codeVerifier,
+      authorizationAdditionalParameters: resultUri.queryParameters,
+    );
   }
 
   //to-do Cache this based on the url
