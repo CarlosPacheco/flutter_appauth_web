@@ -1,24 +1,24 @@
 name: flutter_appauth_web
 description: A new Flutter package project.
-version: 0.0.1
+version: 0.0.2
 publish_to: none
 
 environment:
-  sdk: ">=2.16.2 <3.0.0"
+  sdk: ">=2.19.2 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  http: ^0.13.4
+  http: ^0.13.5
   flutter_appauth_platform_interface: ^5.2.0
-  pointycastle: ^3.6.1
+  pointycastle: ^3.6.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_appauth: ^4.2.0
+  flutter_appauth: ^4.2.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
